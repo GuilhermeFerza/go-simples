@@ -15,7 +15,12 @@ func main() {
 			case 1:
 				ultimoValor = calculadora()
 			case 2:
-				fmt.Println(ultimoValor)
+				if(ultimoValor == 0){
+					fmt.Println("ainda nao ha nenhum valor.")
+				}else{
+					fmt.Print("\n\nultimo valor registrado: ", ultimoValor,"\n\n")
+				}
+				
 			case 3:
 				fmt.Println("saindo...")
 				return
