@@ -17,7 +17,7 @@ func calculadora() float64 {
         fmt.Print("digite o valor: ")
         fmt.Scan(&valor)
         var res = produto * valor
-        fmt.Print("\n", res, "\n\n")
+        fmt.Print("\nValor da compra: ", res, "\n\n")
         var resposta string
         fmt.Print("continuar compra? ")
         fmt.Scan(&resposta)

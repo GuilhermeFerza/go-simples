@@ -1,16 +1,16 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 func main() {
 	var op int
 	var ultimoValor float64
-
-
 	for{
 		menu()
 	fmt.Scan(&op)
-	
 	switch op {
 			case 1:
 				ultimoValor = calculadora()
@@ -23,10 +23,11 @@ func main() {
 				
 			case 3:
 				fmt.Println("saindo...")
+				time.Sleep(2 * time.Second)
+				limparTela()
 				return
 			default:
 				fmt.Println("resposta invalida")
 		}
 	}
-	
 }
