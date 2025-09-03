@@ -27,6 +27,7 @@ func calculadora() float64 {
         case "sim", "ss", "s":
             isRunning = true
             totalRes += res
+            limparTela()
             fmt.Print("\nvalor total do carrinho: ", totalRes, "\n\n")
             fmt.Print("\n----------------------------------\n\n")
             i += 1

@@ -20,6 +20,8 @@ func main() {
 				}else{
 					fmt.Print("\n\nultimo valor registrado: ", ultimoValor,"\n\n")
 				}
+				time.Sleep(2 * time.Second)
+				limparTela()
 				
 			case 3:
 				fmt.Println("saindo...")
