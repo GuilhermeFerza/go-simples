@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/gin-contrib/cors"
@@ -45,8 +46,17 @@ func main() {
 		// Substitua a mensagem estática pela variável 'people'
 		c.JSON(200, people) 
 	})
-	r.POST("/api/data/post", func(c *gin.Context){
-		c.JSON(200, people)
+	r.POST("/api/data", func(c *gin.Context){
+		var newPerson Person
+
+		if err := c.ShouldBindJSON(&newPerson); err != nil{
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		newPerson.ID = len(people) + 1
+
+		people = append(people, newPerson)
+		c.JSON(http.StatusCreated, newPerson)
 	})
 
 	fmt.Println("Dados carregados com sucesso!")

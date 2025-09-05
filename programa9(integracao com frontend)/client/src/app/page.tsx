@@ -9,6 +9,8 @@ export default function Home() {
   }
 
   const [data, setData] = useState<Person[]>([]);
+  const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
 
   useEffect(() => {
     fetch("http://localhost:8080/api/data")
@@ -22,18 +24,49 @@ export default function Home() {
       .catch((error) => console.error("Erro ao buscar dados: ", error));
   }, []);
 
-  function handleSubmit() {}
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const newPerson = { nome, email };
+
+    fetch("http://localhost:8080/api/data", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newPerson),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network responsa was not ok");
+        }
+        return response.json();
+      })
+      .then((createdPerson) => {
+        console.log("pessoa criada com sucesso: ", createdPerson);
+        setData((prev) => [...prev, createdPerson]);
+        setNome("");
+        setEmail("");
+      })
+      .catch((error) => {
+        console.error("erro ao enviar dados para o servidor: ", error);
+      });
+  }
 
   return (
     <div className="flex flex-col justify-center items-center">
       <h1 className="mt-10">CRUD Simples</h1>
-      <form className="flex flex-col mt-10 gap-4 border p-5">
+      <form
+        className="flex flex-col mt-10 gap-4 border p-5"
+        onSubmit={handleSubmit}
+      >
         <h1 className="font-bold">Forms</h1>
         <input
           name="nome"
           id="nome"
           type="text"
           placeholder="name"
+          value={nome}
+          onChange={(e) => setNome(e.target.value)}
           className="border px-2 rounded"
         />
         <input
@@ -41,17 +74,18 @@ export default function Home() {
           id="email"
           type="email"
           placeholder="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           className="border px-2 rounded"
         />
         <button
           className="border rounded-2xl p-1 cursor-pointer active:bg-gray-100 active:text-black"
-          onClick={handleSubmit}
+          type="submit"
         >
           sei la teste
         </button>
       </form>
       <div>
-        {/* Render the data as a list */}
         <h2 className="mt-5 font-bold">Dados do Backend:</h2>
         {data && data.length > 0 ? (
           <ul>
