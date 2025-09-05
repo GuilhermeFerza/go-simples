@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -43,20 +44,43 @@ func main() {
 	}))
 
 	r.GET("/api/data", func(c *gin.Context) {
-		// Substitua a mensagem estática pela variável 'people'
-		c.JSON(200, people) 
+		c.JSON(200, people)
 	})
-	r.POST("/api/data", func(c *gin.Context){
-		var newPerson Person
 
-		if err := c.ShouldBindJSON(&newPerson); err != nil{
+	r.POST("/api/data", func(c *gin.Context) {
+		var newPerson Person
+		if err := c.ShouldBindJSON(&newPerson); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 		newPerson.ID = len(people) + 1
-
 		people = append(people, newPerson)
 		c.JSON(http.StatusCreated, newPerson)
+	})
+
+	r.DELETE("/api/data/:id", func(c *gin.Context) {
+		idStr := c.Param("id")
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
+			return
+		}
+
+		var index int = -1
+		for i, p := range people {
+			if p.ID == id {
+				index = i
+				break
+			}
+		}
+
+		if index == -1 {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Person not found"})
+			return
+		}
+
+		people = append(people[:index], people[index+1:]...)
+		c.JSON(http.StatusOK, gin.H{"message": "Person deleted successfully"})
 	})
 
 	fmt.Println("Dados carregados com sucesso!")

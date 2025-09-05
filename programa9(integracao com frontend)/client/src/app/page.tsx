@@ -52,6 +52,25 @@ export default function Home() {
       });
   }
 
+  function handleDelete(id: number) {
+    fetch(`http://localhost:8080/api/data/${id}`, {
+      method: "DELETE",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((deletedPerson) => {
+        console.log(`pessoa com ID ${id} com sucesso:`, deletedPerson);
+        setData((prev) => prev.filter((person) => person.id !== id));
+      })
+      .catch((error) => {
+        console.error("erro ao deletar pessoa", error);
+      });
+  }
+
   return (
     <div className="flex flex-col justify-center items-center">
       <h1 className="mt-10">CRUD Simples</h1>
@@ -85,6 +104,7 @@ export default function Home() {
           sei la teste
         </button>
       </form>
+
       <div>
         <h2 className="mt-5 font-bold">Dados do Backend:</h2>
         {data && data.length > 0 ? (
@@ -93,6 +113,12 @@ export default function Home() {
               <li key={person.id}>
                 <strong>ID:</strong> {person.id}, <strong>Nome:</strong>{" "}
                 {person.nome}, <strong>Email:</strong> {person.email}
+                <button
+                  onClick={() => handleDelete(person.id)}
+                  className="border rounded-2xl p-1 px-4 mt-3 cursor-pointer active:bg-red-100 active:text-black"
+                >
+                  excluir
+                </button>
               </li>
             ))}
           </ul>
