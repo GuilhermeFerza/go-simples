@@ -11,6 +11,7 @@ export default function Home() {
   const [data, setData] = useState<Person[]>([]);
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
+  const [editingPerson, setEditingPerson] = useState<Person | null>(null);
 
   useEffect(() => {
     fetch("http://localhost:8080/api/data")
@@ -26,8 +27,15 @@ export default function Home() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const newPerson = { nome, email };
+    if (editingPerson) {
+      handleUpdate(editingPerson.id);
+    } else {
+      handleCreate();
+    }
+  }
 
+  function handleCreate() {
+    const newPerson = { nome, email };
     fetch("http://localhost:8080/api/data", {
       method: "POST",
       headers: {
@@ -37,7 +45,7 @@ export default function Home() {
     })
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Network responsa was not ok");
+          throw new Error("Network response was not ok");
         }
         return response.json();
       })
@@ -62,12 +70,52 @@ export default function Home() {
         }
         return response.json();
       })
-      .then((deletedPerson) => {
-        console.log(`pessoa com ID ${id} com sucesso:`, deletedPerson);
+      .then(() => {
+        console.log(`pessoa com ID ${id} deletada com sucesso.`);
         setData((prev) => prev.filter((person) => person.id !== id));
       })
       .catch((error) => {
         console.error("erro ao deletar pessoa", error);
+      });
+  }
+
+  function handleEditClick(person: Person) {
+    setEditingPerson(person);
+    setNome(person.nome);
+    setEmail(person.email);
+  }
+
+  function handleUpdate(id: number) {
+    const updatedData = {
+      id,
+      nome,
+      email,
+    };
+    fetch(`http://localhost:8080/api/data/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedData),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to update person");
+        }
+        return response.json();
+      })
+      .then((updatedPerson) => {
+        console.log("Pessoa atualizada:", updatedPerson);
+        setData((prev) =>
+          prev.map((person) => (person.id === id ? updatedPerson : person))
+        );
+        // Reset form state
+        setEditingPerson(null);
+        setNome("");
+        setEmail("");
+      })
+      .catch((error) => {
+        console.error("Erro ao atualizar a pessoa:", error);
       });
   }
 
@@ -78,12 +126,14 @@ export default function Home() {
         className="flex flex-col mt-10 gap-4 border p-5"
         onSubmit={handleSubmit}
       >
-        <h1 className="font-bold">Forms</h1>
+        <h1 className="font-bold">
+          {editingPerson ? "Editar Pessoa" : "Adicionar Nova Pessoa"}
+        </h1>
         <input
           name="nome"
           id="nome"
           type="text"
-          placeholder="name"
+          placeholder="nome"
           value={nome}
           onChange={(e) => setNome(e.target.value)}
           className="border px-2 rounded"
@@ -101,7 +151,7 @@ export default function Home() {
           className="border rounded-2xl p-1 cursor-pointer active:bg-gray-100 active:text-black"
           type="submit"
         >
-          sei la teste
+          {editingPerson ? "Salvar Alterações" : "Adicionar"}
         </button>
       </form>
 
@@ -110,14 +160,20 @@ export default function Home() {
         {data && data.length > 0 ? (
           <ul>
             {data.map((person) => (
-              <li key={person.id}>
+              <li key={person.id} className="flex items-center gap-2">
                 <strong>ID:</strong> {person.id}, <strong>Nome:</strong>{" "}
                 {person.nome}, <strong>Email:</strong> {person.email}
                 <button
-                  onClick={() => handleDelete(person.id)}
-                  className="border rounded-2xl p-1 px-4 mt-3 cursor-pointer active:bg-red-100 active:text-black"
+                  onClick={() => handleEditClick(person)}
+                  className="border rounded-2xl p-1 px-2 text-xs cursor-pointer bg-blue-500 text-white hover:bg-blue-600"
                 >
-                  excluir
+                  Editar
+                </button>
+                <button
+                  onClick={() => handleDelete(person.id)}
+                  className="border rounded-2xl p-1 px-2 text-xs cursor-pointer bg-red-500 text-white hover:bg-red-600"
+                >
+                  Excluir
                 </button>
               </li>
             ))}

@@ -83,6 +83,36 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"message": "Person deleted successfully"})
 	})
 
+	r.PUT("/api/data/:id", func(c *gin.Context){
+		idStr := c.Param("id")
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
+			return
+		}
+
+		var updatedPerson Person
+		if err := c.ShouldBindJSON(&updatedPerson); err != nil{
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		var found bool = false
+		for i, p := range people{
+			if p.ID == id{
+				people[i].Nome = updatedPerson.Nome
+				people[i].Email = updatedPerson.Email
+				found = true
+				break
+			}
+		}
+
+		if !found{
+			c.JSON(http.StatusNotFound, gin.H{"error": "person not found"})
+			return
+		}
+		c.JSON(http.StatusOK, updatedPerson)
+})
+
 	fmt.Println("Dados carregados com sucesso!")
 	r.Run(":8080")
 }
