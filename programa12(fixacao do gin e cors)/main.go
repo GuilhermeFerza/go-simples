@@ -1,13 +1,14 @@
 package main
 
-import(
-	"fmt"
-	"os"
+import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"os"
 	"strconv"
-	"github.com/gin-gonic/gin"
+
 	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
 type Person struct{
@@ -16,7 +17,7 @@ type Person struct{
 	Email string `json:"email"`
 }
 
-var people Person[]
+var people []Person
 
 func init(){
 	file, err := os.ReadFile("data.json")
@@ -46,7 +47,7 @@ func main(){
 	})
 	r.POST("/api/data/", func(c *gin.Context){
 		var newPerson Person
-		if err != c.ShouldBindJSON(&newPerson); err != nil{
+		if err := c.ShouldBindJSON(&newPerson); err != nil{
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
@@ -55,7 +56,7 @@ func main(){
 		c.JSON(http.StatusCreated, newPerson)
 	})
 	r.DELETE("/api/data/:id", func(c *gin.Context){
-		idStr = c.Param("id")
+		idStr := c.Param("id")
 		id, err := strconv.Atoi(idStr)
 		if err != nil{
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
@@ -77,10 +78,10 @@ func main(){
 		 c.JSON(http.StatusOK, gin.H{"message": "Person deleted"})
 	})
 	r.PUT("/api/data/:id", func(c *gin.Context){
-		idStr != c.Param("id")
-		id, err := strconv(idStr)
+		idStr := c.Param("id")
+		id, err := strconv.Atoi(idStr)
 		if err != nil{
-			c.JSON(http.StatusBadRequest, gin.H{"error", "Invalid Id format"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Id format"})
 			return
 		}
 
@@ -91,7 +92,7 @@ func main(){
 		}
 		var found bool = false
 		
-		for i, p = range people{
+		for i, p := range people{
 			if p.ID == id{
 				people[i].Nome = updatedPerson.Nome
 				people[i].Email= updatedPerson.Email
@@ -106,5 +107,5 @@ func main(){
 			c.JSON(http.StatusOK, updatedPerson)
 	})
 	fmt.Println("dados carregados com sucesso!")
-	r.run(":8080")
+	r.Run(":8080")
 }
