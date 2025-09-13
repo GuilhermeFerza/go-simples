@@ -10,4 +10,7 @@ func main() {
 	lista = append(lista, novoValor)
 
 	fmt.Println(lista)
+
+	pilha()
+	fila()
 }
