@@ -14,6 +14,5 @@ func bs(slice []int, alvo int) int {
 			fim = meio - 1
 		}
 	}
-
 	return -1
 }
